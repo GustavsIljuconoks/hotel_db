@@ -1,0 +1,75 @@
+SELECT
+	  Booking_ID,
+	  DATEDIFF(DepartureTime, ArrivalTime) AS date_difference,
+	  `room`.Room_ID,
+	  `room type`.RoomDesc,
+	  `room type`.RoomPriceNight
+	FROM booking
+	inner join `room` on `booking`.Room_ID = `room`.Room_ID
+	inner join `room type` on `room`.RoomType_ID = `room type`.RoomType_ID
+	where Booking_ID = 1;
+
+
+# Get payment for room from the time diff
+#----------------------------------------------------------------------------------
+
+if (@isBill is not null) then
+		update `paymentdetail` set FoodCharge = (
+			select format(sum(TotalBill), 2) from `bill` where Booking_ID = new.Booking_ID
+        ) where Booking_ID = new.Booking_ID;
+    end if;
+
+#----------------------------------------------------------------------------------
+After update booking departure time
+paymentdetail - foodcharge = sum (total_bill where booking_id = new.booking_id)
+
+
+#----------------------------------------------------------------------------------
+# create before update trigger
+    if (date_diff > 0) then
+		 # Update RoomCharge with time * room_type
+		set @room_charge = @one_night * @date_diff;
+		update `paymentdetail` set RoomCharge = @room_charge where Booking_ID = new.Booking_ID;
+
+		update `room` as r
+		inner join `booking` as b on r.Room_ID = b.Room_ID
+		set isAvailable = 1 where b.Booking_ID = new.Booking_ID;
+        
+	else
+		signal sqlstate '23000' set message_text = 'departure time!';
+	end if;
+
+#----------------------------------------------------------------------------------
+# procedure for checking available rooms at certain date
+DELIMITER $$
+CREATE PROCEDURE `room_available_at_date` (IN `date` datetime, IN `hotel_ID` int)
+BEGIN
+	select 
+		room.Room_ID, 
+        room.isAvailable,
+        booking.BookingDate 
+	from `room`
+	inner join `booking` on `room`.Room_ID = `booking`.Room_ID
+	where 
+		BookingDate != `date` and 
+        `room`.isAvailable = 1 and 
+        `room`.Hotel_ID = `hotel_ID`;
+END $$
+DELIMITER ;
+drop procedure room_available_at_date;
+call room_available_at_date('2022-02-25', 1);
+
+#----------------------------------------------------------------------------------
+# Checks if room is available for booking
+DELIMITER $$
+CREATE TRIGGER check_room_available BEFORE INSERT ON `booking` FOR EACH ROW
+BEGIN
+	set @available = (select isAvailable from `room` where Room_ID = new.Room_ID);
+	
+    if (@available = 1) then
+		update `room` set isAvailable = 0 where Room_ID = new.Room_ID;
+	else
+		signal sqlstate '23000' set message_text = 'error checking room!';
+	end if;
+END $$
+DELIMITER ;

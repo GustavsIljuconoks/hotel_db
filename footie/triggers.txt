@@ -1,0 +1,67 @@
+AFTER UPDATE ON `room`
+	input - room isAvailable = 0, 1
+	* updates available room count in hotel
+
+BEFORE INSERT ON `booking`
+	input - Room_ID, ArrivalTime
+	* checks if room is available for guest. if not - throws error.
+
+AFTER INSERT ON `booking`
+	* trigger is used to create row in `paymentdetail` table inserting guestdetail's and booking id
+
+BEFORE UPDATE ON `booking`
+	input - incorrect departure time
+	* checks whatever departure n arrival time is not negative
+
+AFTER UPDATE ON `booking`
+	input - DepartureTime
+	* calculates RoomCharge for stay time
+	* updates room isAvailable value to 1 (AFTER UPDATE ON `room` is called)
+	* inserts into `paymentdetail` :		
+		* creates `FoodCharge` (0 or value from bill)
+		* Creates `Total` sum (value for staying time and bill)
+	
+BEFORE INSERT ON `guestdetail` n `employee`
+	input - first_name, last_name
+	* Capitalizes names
+
+AFTER INSERT ON `foodorders`
+	input - foodorder (Restaurant_ID, Date, Price) 
+	* Creates row in `bill` inserting (FoodOrder_ID, TotalBill) values
+
+AFTER UPDATE ON `employee`
+	input - employee table updated
+	* updates number of employees hotel has.
+
+#-------------------------------------------------
+PROCEDURE room_available_at_date()
+	input - datums
+	* shows available rooms at certain date
+
+#-------------------------------------------------
+view `guest_room`
+	* shows guest's room hes is staying
+
+view `guest_didnt_paid`
+	* shows guest's that haven't paid
+
+view `payment_from_room`
+	* shows guest staying time, info about room
+
+view `employee_to_room`
+	* shows all employees rooms their are serving
+
+#-------------------------------------------------
+build order:
+insert:
+	`room type`,
+	`role`,
+	`restaurant`,
+	`foodorders`,
+	`guestdetail`,
+	`hotel`,
+	`employee`,
+	`room`,
+	`booking`, (insert into paymentdetail too)
+	`bill`,
+	`payment`
