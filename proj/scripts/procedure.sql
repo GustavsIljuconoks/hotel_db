@@ -1,7 +1,7 @@
 DELIMITER $$
 CREATE PROCEDURE `room_available_at_date`(IN `date` datetime, IN `hotel_ID` int)
 BEGIN
-	select
+	select distinct
 		room.Room_ID, 
 		room.isAvailable, 
 		room.Hotel_ID		

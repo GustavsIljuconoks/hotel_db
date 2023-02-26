@@ -476,14 +476,3 @@ values
 	(1, 1, 1, null, null, null, null, null, null)
 ;
 select * from paymentdetail;
-
-#-------------------------------------------------------
-ALTER TABLE booking ADD Employee_ID INT AFTER GuestDetail_ID;
-ALTER TABLE booking ADD CONSTRAINT fk_Booking_Employee1 FOREIGN KEY (Employee_ID) REFERENCES employee(Employee_ID);
-update booking set Employee_ID = 1 where Booking_ID = 4;
-
-
-ALTER TABLE paymentdetail ADD Total INT DEFAULT NULL AFTER FoodCharge;
-ALTER TABLE paymentdetail MODIFY COLUMN Total FLOAT;
- 
-#------------------------------------------------------

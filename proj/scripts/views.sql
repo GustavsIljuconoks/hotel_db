@@ -12,7 +12,7 @@ CREATE VIEW `employee_to_room` AS
         JOIN `hotel` ON ((`booking`.`Hotel_ID` = `hotel`.`Hotel_ID`)))
     WHERE
         ((`room`.`isAvailable` = 0)
-            AND (`booking`.`DepartureTime` IS NULL))
+            AND (`booking`.`DepartureTime` IS NULL));
 #---------------------------------------------------------
 
 CREATE VIEW `guest_didnt_paid` AS
@@ -29,7 +29,7 @@ CREATE VIEW `guest_didnt_paid` AS
     FROM
         `paymentdetail`
     WHERE
-        (`paymentdetail`.CheckNo IS NULL)
+        (`paymentdetail`.CheckNo IS NULL);
 #---------------------------------------------------------
 
 CREATE VIEW `guest_room` AS
@@ -43,7 +43,7 @@ CREATE VIEW `guest_room` AS
         JOIN `room` ON ((`booking`.`Room_ID` = `room`.`Room_ID`)))
         JOIN `guestdetail` `guest` ON ((`booking`.`GuestDetail_ID` = `guest`.`Guest_ID`)))
     WHERE
-        (`room`.`isAvailable` = 0)
+        (`room`.`isAvailable` = 0);
 #---------------------------------------------------------
 
 CREATE VIEW `payment_from_room` AS
@@ -60,4 +60,4 @@ CREATE VIEW `payment_from_room` AS
     WHERE
         `booking`.Booking_ID IN (
             SELECT Booking_ID FROM `booking`
-            )
+            );

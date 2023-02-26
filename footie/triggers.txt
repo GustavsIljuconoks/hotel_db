@@ -53,6 +53,15 @@ view `employee_to_room`
 
 #-------------------------------------------------
 build order:
+tables
+
+triggers
+
+procedures
+
+views
+
+testdata
 insert:
 	`room type`,
 	`role`,
@@ -62,6 +71,8 @@ insert:
 	`hotel`,
 	`employee`,
 	`room`,
-	`booking`, (insert into paymentdetail too)
+	`booking`, (inserts into paymentdetail too)
 	`bill`,
+update:
+	`booking`
 	`payment`

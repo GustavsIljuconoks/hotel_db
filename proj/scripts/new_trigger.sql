@@ -17,17 +17,6 @@ END $$
 DELIMITER ;
 #---------------------------------------------------------
 
-
-DELIMITER $$
-CREATE TRIGGER `update_room_status` AFTER UPDATE ON `room` FOR EACH ROW
-BEGIN
-	set @room_count = (select COUNT(Room_ID) from `room` where isAvailable = 1 and Hotel_ID = new.Hotel_ID);
-	update `hotel` set Rooms = @room_count where Hotel_ID = new.Hotel_ID;
-END $$
-DELIMITER ;
-#---------------------------------------------------------
-
-
 DELIMITER $$
 CREATE TRIGGER `check_room_available` BEFORE INSERT ON `booking` FOR EACH ROW 
 BEGIN
@@ -117,6 +106,25 @@ BEGIN
     
     set @food = (select FoodCharge from paymentdetail where Booking_ID = new.Booking_ID);
     update `paymentdetail` set Total = @room_charge + @food where Booking_ID = new.Booking_ID;
+END $$
+DELIMITER ;
+#---------------------------------------------------------
+
+
+DELIMITER $$
+CREATE TRIGGER `bill_to_foodorder` AFTER INSERT ON `foodorders` FOR EACH ROW
+BEGIN
+    set @order_id = (
+		select FoodOrder_ID from foodorders where FoodOrder_ID = new.FoodOrder_ID
+    );
+    
+    set @price = (
+		select Price from foodorders where FoodOrder_ID = new.FoodOrder_ID
+    );
+        
+    insert into `bill`(FoodOrder_ID, TotalBill) 
+	values 
+		(@order_id, @price);
 END $$
 DELIMITER ;
 #---------------------------------------------------------
